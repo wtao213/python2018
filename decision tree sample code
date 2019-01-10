@@ -1,0 +1,120 @@
+from sklearn.tree import _tree
+
+def tree_to_code(tree, feature_names):
+    tree_ = tree.tree_
+    feature_name = [
+        feature_names[i] if i != _tree.TREE_UNDEFINED else "undefined!"
+        for i in tree_.feature
+    ]
+    print "def tree({}):".format(", ".join(feature_names))
+
+    def recurse(node, depth):
+        indent = "  " * depth
+        if tree_.feature[node] != _tree.TREE_UNDEFINED:
+            name = feature_name[node]
+            threshold = tree_.threshold[node]
+            print "{}if {} <= {}:".format(indent, name, threshold)
+            recurse(tree_.children_left[node], depth + 1)
+            print "{}else:  # if {} > {}".format(indent, name, threshold)
+            recurse(tree_.children_right[node], depth + 1)
+        else:
+            print "{}return {}".format(indent, tree_.value[node])
+
+    recurse(0, 1)
+    
+    def tree(f0):
+  if f0 <= 6.0:
+    if f0 <= 1.5:
+      return [[ 0.]]
+    else:  # if f0 > 1.5
+      if f0 <= 4.5:
+        if f0 <= 3.5:
+          return [[ 3.]]
+        else:  # if f0 > 3.5
+          return [[ 4.]]
+      else:  # if f0 > 4.5
+        return [[ 5.]]
+  else:  # if f0 > 6.0
+    if f0 <= 8.5:
+      if f0 <= 7.5:
+        return [[ 7.]]
+      else:  # if f0 > 7.5
+        return [[ 8.]]
+    else:  # if f0 > 8.5
+      return [[ 9.]]
+      
+      
+      ## example I used:
+      #%%display tree rules
+#%%
+def print_decision_tree(tree, feature_names=None, offset_unit='    '):
+    '''Plots textual representation of rules of a decision tree
+    tree: scikit-learn representation of tree
+    feature_names: list of feature names. They are set to f1,f2,f3,... if not specified
+    offset_unit: a string of offset of the conditional block'''
+
+    left      = tree.tree_.children_left
+    right     = tree.tree_.children_right
+    threshold = tree.tree_.threshold
+    value = tree.tree_.value
+    if feature_names is None:
+        features  = ['f%d'%i for i in tree.tree_.feature]
+    else:
+        features  = [feature_names[i] for i in tree.tree_.feature]        
+
+    def recurse(left, right, threshold, features, node, depth=0):
+            offset = offset_unit*depth
+            if (threshold[node] != -2):
+                    print(offset+"if ( " + features[node] + " <= " + str(threshold[node]) + " ) {")
+                   if left[node] != -1:
+                            recurse (left, right, threshold, features,left[node],depth+1)
+                    print(offset+"} else {")
+                    if right[node] != -1:
+                            recurse (left, right, threshold, features,right[node],depth+1)
+                    print(offset+"}")
+            else:
+                    print(offset+"return " + str(value[node]))
+
+    recurse(left, right, threshold, features, 0,0)
+    
+#%%
+
+print_decision_tree(clf_gini, data.columns)
+
+#%%
+decision_path(X, check_input=True)
+
+#%% Once cut-offs defined generate them fr Txns and Sales
+def groups(series):
+    if 51<= series <1301:
+        return "51-1300"
+    elif 1301<= series <2226:
+        return "1301-2225"
+    elif 2226<= series <2611:
+        return "2226-2610"
+    elif 2611<= series <4071:
+        return "2611-4070"
+    elif 4071<= series <5301:
+        return "4071-5300"
+    elif 5301<= series <8941:
+        return "5301-8940"
+    elif 8941<= series <45000:
+        return "8941-44999"    
+df['Salesgroups'] = df['totalAMN'].apply(groups)
+df['Salesgroups'].value_counts(sort=False)
+#%%
+def groups(series):
+    if 7<= series <31:
+        return "7-30"
+    elif 31<= series <41:
+        return "31-40"
+    elif 41<= series <51:
+        return "41-50"
+    elif 51<= series <67:
+        return "51-67"
+    elif 67<= series <101:
+        return "67-100"
+    elif 101<= series <161:
+        return "101-160"
+    elif 161<= series <399:
+        return "161-399"
