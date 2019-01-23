@@ -16,10 +16,10 @@ import matplotlib.pyplot as plt
 
 import pyodbc
 cnxn = pyodbc.connect('Driver={SQL Server};'
-			  'Server=172.30.0.24;'
+			  'Server=;'
 			  'Database=LCL;'
-			  'UID=lclro;'
-			  'PWD=5566;')
+			  'UID=;'
+			  'PWD=;')
 
 ## check all the customer who shopped in the passing year
 ## working date Nov 7th,2018
