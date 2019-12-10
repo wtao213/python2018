@@ -62,29 +62,63 @@ X_train,X_test,y_train,y_test=train_test_split(X,Y,test_size=0.3,random_state=10
 y_train['Type'].value_counts(sort=False)
 
 
+
+
+## based on different depth, and mini sample size
+## compared the ROC value of training,testing,and full dataset to get an idea of overfitting
+## and where is the best performance tree
+## things could use to control: 1.depth, 2.leaf sample size 3.mini size for node to split 4.criteria:gini entropy
+
+from sklearn.datasets import make_classification
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve
+from sklearn.metrics import roc_auc_score
+
+
+def valiplot(depth,sample,split_n,criteria):
+    X_train,X_test,y_train,y_test=train_test_split(X,Y,test_size=0.3,random_state=100)
+    for i in range (2,depth):
+        
+        clf_gini= DecisionTreeClassifier(criterion=criteria,random_state=100,min_samples_split=split_n,
+                                        max_depth=i,min_samples_leaf=sample) 
+        clf_gini.fit(X_train,y_train)
+        
+        y_pred_test = clf_gini.predict_proba(X_test)
+        y_pred_train = clf_gini.predict_proba(X_train)
+        y_pred_full = clf_gini.predict_proba(X)
+       
+        
+        y_pred_test  = y_pred_test[:,1]
+        y_pred_train = y_pred_train[:,1]
+        y_pred_full = y_pred_full[:,1]
+        
+        
+       
+        test_auc = roc_auc_score(y_test, y_pred_test)
+        train_auc = roc_auc_score(y_train, y_pred_train)
+        full_auc = roc_auc_score(Y, y_pred_full)
+
+        print("depth ",i, 'Decision tree Train data: ROC AUC=%.3f' % (train_auc))
+        print("depth ",i, 'Decision tree Test data: ROC AUC=%.3f' % (test_auc))
+        print("depth ",i, 'Decision tree Full data: ROC AUC=%.3f' % (full_auc))
+        print(" ")
+        
+# overfitting check, depth =50 and 
+valiplot(10,400,1000,"entropy")
+
+
+### actual tree
 ## min_smples_leaf is the mini samples number in each leaf node, cant be too large
-clf_gini=DecisionTreeClassifier(criterion="gini",random_state=100,max_depth=5,
-                                min_samples_leaf=50)
+clf_gini=DecisionTreeClassifier(criterion="entropy",random_state=100,max_depth=7,
+                                min_samples_leaf=500)
 
 
 clf_gini.fit(X_train,y_train)
 
 
-## based on different depth, and mini sample size
-def valiplot(depth,sample):
-    X_train,X_test,y_train,y_test=train_test_split(X,Y,test_size=0.3,random_state=100)
-    for i in range (2,depth):
-        
-        clf_gini=DecisionTreeClassifier(criterion="gini",random_state=100,
-                                        max_depth=i,min_samples_leaf=sample) 
-        clf_gini.fit(X_train,y_train)
-        y_pred =clf_gini.predict(X_test)
-        score = accuracy_score(y_test,y_pred)*100
 
-        print("depth ",i," Accuracy using DTree:",round(score,1),"%")
-        
-# overfitting check, depth =50 and 
-valiplot(10,50)
+
 
 
 ##visulization of the tree
