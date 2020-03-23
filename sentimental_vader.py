@@ -18,8 +18,8 @@ import pandas as pd
 import numpy as np
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 analyser = SentimentIntensityAnalyzer()
-
-
+import GetOldTweets3 as got
+import csv
 
 ## funtion to test
 ## compound rate is lexicon ratings which between -1(extreme negative) and +1 (extreme positive)
@@ -124,6 +124,63 @@ full.to_csv(r"C:\Users\012790\Desktop\survey\cus_full_v3.csv",sep=",")
 
 
 
+
+
+################################################
+##      get twittwe from the web
+##  https://pypi.org/project/GetOldTweets3/
+##  
+
+import GetOldTweets3 as got
+
+
+## search by user
+tweetCriteria = got.manager.TweetCriteria().setUsername("barackobama whitehouse")\
+                                           .setMaxTweets(2)
+tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
+print(tweet.text)
+
+## search by query
+tweetCriteria = got.manager.TweetCriteria().setQuerySearch('questrade')\
+                                           .setSince("2020-03-01")\
+                                           .setUntil("2020-03-07")\
+                                           .setMaxTweets(100)
+                                           
+## only show the first twitter                                          
+##  tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
+## print(tweet.text)
+
+del tweet,tweets,a
+
+tweets = got.manager.TweetManager.getTweets(tweetCriteria)
+
+## show twitters
+for tweet in tweets:
+    print(tweet.text + '\n');
+
+
+
+
+
+##############################################################################
+##  try to  conver the results to a dataframe or a list of string
+##  https://medium.com/@robbiegeoghegan/download-twitter-data-with-10-lines-of-code-42eb2ba1ab0f
+## convert the tweet to a dataframe that we could analyze
+
+tweet_df = pd.DataFrame({'got_criteria':got.manager.TweetManager.getTweets(tweetCriteria)})
+
+def get_twitter_info():
+    tweet_df["tweet_text"] = tweet_df["got_criteria"].apply(lambda x: x.text)
+    tweet_df["date"] = tweet_df["got_criteria"].apply(lambda x: x.date)
+    tweet_df["hashtags"] = tweet_df["got_criteria"].apply(lambda x: x.hashtags)
+    tweet_df["link"] = tweet_df["got_criteria"].apply(lambda x: x.permalink)
+    tweet_df["favorites"] = tweet_df["got_criteria"].apply(lambda x: x.favorites)
+    tweet_df["replies"] = tweet_df["got_criteria"].apply(lambda x: x.replies)
+    tweet_df["retweets"] = tweet_df["got_criteria"].apply(lambda x: x.retweets)
+    
+     
+    
+get_twitter_info()
 
 
 
