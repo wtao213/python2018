@@ -136,21 +136,31 @@ import GetOldTweets3 as got
 
 ## search by user
 tweetCriteria = got.manager.TweetCriteria().setUsername("barackobama whitehouse")\
-                                           .setMaxTweets(2)
+                                           .setMaxTweets(2)\
+                                           .setLang('en')
+                                        
+                                           
 tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
 print(tweet.text)
 
 ## search by query
-tweetCriteria = got.manager.TweetCriteria().setQuerySearch('questrade')\
-                                           .setSince("2020-03-01")\
-                                           .setUntil("2020-03-07")\
-                                           .setMaxTweets(100)
+## using " xxx OR xxx" to apply multiple key words
+## during 2020-03-01 to 2020-03-07 there are90 tweets about questrade
+## during 2020-03-16 to 2020-03-22 there are 980 tweets about questrade..
+## keep only English, and we have 938 left
+
+keyword = "questrade OR questwealth "
+tweetCriteria = got.manager.TweetCriteria().setQuerySearch(keyword)\
+                                           .setSince("2020-03-16")\
+                                           .setUntil("2020-03-22")\
+                                           .setLang('en')\
+                                           .setMaxTweets(1000)
                                            
 ## only show the first twitter                                          
 ##  tweet = got.manager.TweetManager.getTweets(tweetCriteria)[0]
 ## print(tweet.text)
 
-del tweet,tweets,a
+del tweets
 
 tweets = got.manager.TweetManager.getTweets(tweetCriteria)
 
@@ -166,11 +176,13 @@ for tweet in tweets:
 ##  try to  conver the results to a dataframe or a list of string
 ##  https://medium.com/@robbiegeoghegan/download-twitter-data-with-10-lines-of-code-42eb2ba1ab0f
 ## convert the tweet to a dataframe that we could analyze
+del tweet_df,df,a
 
 tweet_df = pd.DataFrame({'got_criteria':got.manager.TweetManager.getTweets(tweetCriteria)})
 
 def get_twitter_info():
     tweet_df["tweet_text"] = tweet_df["got_criteria"].apply(lambda x: x.text)
+    tweet_df["username"] = tweet_df["got_criteria"].apply(lambda x: x.username)
     tweet_df["date"] = tweet_df["got_criteria"].apply(lambda x: x.date)
     tweet_df["hashtags"] = tweet_df["got_criteria"].apply(lambda x: x.hashtags)
     tweet_df["link"] = tweet_df["got_criteria"].apply(lambda x: x.permalink)
@@ -179,8 +191,70 @@ def get_twitter_info():
     tweet_df["retweets"] = tweet_df["got_criteria"].apply(lambda x: x.retweets)
     
      
-    
+## run your function to get results    
 get_twitter_info()
+
+
+## remove the user name is "questrade", then 874 out of 938 left
+tweet_df = tweet_df[tweet_df.username != "Questrade"]
+
+
+## now apply the sentimental analysis to these txt
+def get_sentiment(row,**kwargs):
+ sentiment_score = analyser.polarity_scores(row)
+ positive = sentiment_score['pos'] 
+ negative = sentiment_score['neg'] 
+ neural = sentiment_score['neu'] 
+ compound = sentiment_score['compound']
+ if kwargs['k'] == 'pos':
+      return positive
+ elif kwargs['k'] == 'neg':
+      return negative
+ elif kwargs['k'] == 'neu':
+      return neural
+ else:
+      return compound 
+
+
+
+tweet_df['pos_score'] = tweet_df.tweet_text.apply(get_sentiment, k='pos')
+tweet_df['neg_score'] = tweet_df.tweet_text.apply(get_sentiment, k='neg')
+tweet_df['neu_score'] = tweet_df.tweet_text.apply(get_sentiment, k='neu')
+tweet_df['compound']  = tweet_df.tweet_text.apply(get_sentiment, k='compound')
+
+
+## quickly get average sentimental
+## mean compound in 2020-03-16 to 2020-03-22 is  0.00589, very nerual
+## mean compound in 2020-03-01 to 2020-03-07 is  0.148, positive
+## after remove questrade comments, right now it's -0.2589
+np.mean(tweet_df['compound'])
+
+
+
+
+## export your data
+tweet_df.to_csv(r"C:\Users\012790\Desktop\survey\tweet_mar16_22.csv",sep=",")
+
+
+help(got.manager.TweetCriteria())
+
+
+##################################################
+## end of day 2020-03-23 things need to be done:
+## 1. excluded some userid   
+## 2. when turn to csv file, some punctuation will crash
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
