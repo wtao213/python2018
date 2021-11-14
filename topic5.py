@@ -29,6 +29,21 @@ df['Time'] = pd.to_datetime(df['Date/Time']).dt.time
 
 
 
+
+
+
+## plot before aggreatation
+
+
+plt.plot(df['Date/Time'], df['Electricity Demand for the Branch (kW)'],alpha=0.7,label='Electricity Demand for the Branch (kW)')
+plt.plot(df['Date/Time'], df['Solar System Output (kW)'],alpha=0.5,label='Solar System Output (kW)')
+#plt.legend( loc='upper right')
+plt.legend(loc="center", bbox_to_anchor=(0.5, -0.2), shadow=True, ncol=2) 
+plt.title("Demand vs Output by Date Time (kW)")
+plt.xlabel("Date Time")
+plt.ylabel("kW")
+plt.show()
+
 ###
 #   aggregate
 
