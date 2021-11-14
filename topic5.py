@@ -130,6 +130,11 @@ from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import numpy as np
 
+# This to suppress some annoying warnings.
+# Do not do that before you are going to present 
+# the result -- warnings are often useful.
+import warnings
+warnings.filterwarnings("ignore")
 
 ##
 #
@@ -320,7 +325,14 @@ def scoreCVforTBATS(series, loss_function):
     return errors, np.mean(np.array(errors))
 
 
-
+#####################################
+warnings.filterwarnings("ignore")
+errors_mae_add_add, score_mae_add_add = exponentialSmoothingCVscore(price, 'add', 'add', mean_absolute_error)
+errors_mae_mul_mul, score_mae_mul_mul = exponentialSmoothingCVscore(price, 'mul', 'mul', mean_absolute_error)
+errors_mse_add_add, score_mse_add_add = exponentialSmoothingCVscore(price, 'add', 'add', mean_squared_error)
+errors_mse_mul_mul, score_mse_mul_mul = exponentialSmoothingCVscore(price, 'mul', 'mul', mean_squared_error)
+errors_tbats_mae, score_tbats_mae = scoreCVforTBATS(price, mean_absolute_error)
+errors_tbats_mse, score_tbats_mse = scoreCVforTBATS(price, mean_squared_error)
 
 ##############################
 # MAE
