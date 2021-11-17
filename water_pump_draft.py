@@ -137,6 +137,103 @@ df['weekday'] = pd.to_datetime(df['date_recorded']).dt.dayofweek
 
 
 
+##
+# 'gps_height'
+df.columns
+
+df['gps_height'].describe()
+df['gps_height'].quantile(np.arange(0.9, 1.0, 0.02))
+
+
+plt.hist(df.loc[(df.status_group == 'functional'),['gps_height']], bins=50,color = "skyblue",ec='blue',range=(-100,2000),alpha =0.5)
+plt.hist(df.loc[(df.status_group == 'non functional'),['gps_height']], bins=50,color = "coral",ec='red',range=(-100,2000),alpha =0.5)
+plt.hist(df.loc[(df.status_group == 'functional needs repair'),['gps_height']], bins=50,color = "lightgreen",ec='green',range=(-100,2000),alpha =0.5)
+plt.xlim((-100,2000))
+plt.title("gps_height by outcome Distribution")
+plt.xlabel("gps_height")
+plt.ylabel("Count")
+# add in vertial line
+#plt.vlines(x=317,  colors='red', ls=':',ymin=0, ymax=25,lw=2, label=' Average = 317')
+plt.legend( loc='upper right')
+plt.show()
+
+
+# why the 0 bin so big? does 0 mean missing?
+
+df['gps_height'].hist(by=df.status_group,bins=50,color = "skyblue",ec='blue',range=(-100,2000))
+sb.catplot(x="status_group", y='gps_height', data=df[df['gps_height'] !=0])
+
+# 20438 is 0, which is 34.4%
+df[df['gps_height']==0]
+
+df.loc[df['gps_height']==0,'status_group'].value_counts(normalize=True)
+df.loc[df['gps_height']>1600,'status_group'].value_counts(normalize=True)
+df.loc[df['gps_height']>1600,'status_group'].value_counts()
+df['status_group'].value_counts(normalize=True)
+
+
+df['gps_height_0_ind'] = np.where(df['gps_height']==0,1,0)
+df['gps_height_high_ind'] =np.where(df['gps_height']>1600,1,0)
+
+
+######################
+# lets focus on category first
+df.columns
+
+df['installer'].describe()
+df['installer'].value_counts()
+df['installer'].value_counts().head(100).cumsum()
+df['installer'].value_counts(normalize=True).head(100).cumsum()
+
+# choose top 100 which capture 0.78
+df.groupby(["status_group", "installer"]).size().reset_index(name="Time")
+
+t1 = pd.crosstab(df.installer,df.status_group, normalize='columns')
+
+# even keep top 100, remaining group still capture 25.5% of total count,and each funder min has 84 rows in
+l1 = df['installer'].value_counts().head(100).index.tolist()
+df['installer_v2'] = np.where(df['installer'].isin(l1), df['installer'], 'other')
+
+# then look at the result by installer
+t1 = pd.crosstab(df.installer_v2,df.status_group, normalize='index')
+
+# index for function, using 0.7, base rate for cuntion is 54.3%
+l1= t1[t1['functional'] > 0.7].index.tolist()
+df['installer_function_ind'] = np.where(df['installer_v2'].isin(l1), 1, 0)
+df['installer_function_ind'].value_counts()
+# index for function, using 0.5, base rate for cuntion is 38.4%
+l1= t1[t1['non functional'] > 0.5].index.tolist()
+df['installer_nonfunction_ind'] = np.where(df['installer_v2'].isin(l1), 1, 0)
+df['installer_nonfunction_ind'].value_counts()
+
+
+
+
+######################
+# 'quantity'
+df.columns
+
+df['quantity'].describe()
+df['quantity'].value_counts()
+
+
+######################
+# 'quantity_group'
+df.columns
+
+df['quantity_group'].describe()
+df['quantity_group'].value_counts()
+
+
+
+
+
+
+
+
+#######################
+# export to csv
+df.to_csv(r"C:\Users\012790\Desktop\water_pump\water_pump.csv", index=False)
 
 
 
@@ -147,6 +244,53 @@ df['weekday'] = pd.to_datetime(df['date_recorded']).dt.dayofweek
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## get numeric columns
+
+df.select_dtypes(include=np.number)
+
+df.columns
+df.info()
+
+# Creating dummy variables:
+df = pd.get_dummies(df, columns=['quantity'])
+df = pd.get_dummies(df, columns=['quantity_group'])
+df = pd.get_dummies(df, columns=['lga'])
+df = pd.get_dummies(df, columns=['waterpoint_type'])
+df = pd.get_dummies(df, columns=['extraction_type'])
+df = pd.get_dummies(df, columns=['extraction_type_class'])
+df = pd.get_dummies(df, columns=['source_type'])
+df = pd.get_dummies(df, columns=['public_meeting'])
 
 
 ## get numeric columns
