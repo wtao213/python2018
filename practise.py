@@ -154,9 +154,6 @@ a = df.groupby(by='Station')
 
 
 
-
-
-
 data.groupby( ['month', 'item']).agg(
     {
         # Find the min, max, and sum of the duration column
@@ -217,23 +214,34 @@ df.groupby(['Station','Date'],as_index = False).agg(
 
 
 
-
-
 #######################################
 c1 = df.groupby('Station')['Min.Delay'].describe()
 
 
 
+# importing the module
+import collections
+
+str_list = [
+'The cat ate the fish',
+'The cat saw the roses',
+'The roses are red'
+]
 
 
+# apply fnction to the column
+# [s +1 for s in df['Min.Delay']]
+# apply function to a list
+a= [s.split(' ') for s in str_list]
 
+l =[]
+for i in range(len(a)):
+    l += a[i]
 
+# using Counter to find frequency of elements
+frequency = collections.Counter(l)
 
-
-
-
-
-
-
+# check result by dictionary
+dict(frequency)
 
 
