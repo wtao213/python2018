@@ -39,7 +39,8 @@ df.drop_duplicates()
 # remove duplicates by columns and have max in others
 df.drop_duplicates(subset='Station')
 
-t = df.groupby('Station', group_keys=False).apply(lambda x: x.loc[x.year.idxmax()])
+t = df.groupby('Station', as_index = False ).apply(lambda x: x.loc[x.year.idxmax()])
+
 
 # top/tail 10
 df.head(10)
@@ -73,7 +74,7 @@ df.iloc[:,[1,2,5]]
 
 
 # freq table
-t = df['Station'].value_counts()
+t = df['Station'].value_counts(dropna=False)
 t.head(10)
 
 t = sorted(df['Station'].value_counts(),reverse=True)
@@ -92,6 +93,9 @@ df.describe()
 df.dropna().describe()
 df['Min.Delay'].describe()
 df['Min.Delay'].quantile([0.05,0.5,0.95])
+np.arange(0.0, 1.0, 0.1)
+np.linspace(0,1,11)
+
 
 ## create column based on if else
 df['hasimage'] = np.where(df['photos']!= '[]', True, False)
@@ -100,6 +104,7 @@ df['Line'].value_counts()
 
 df['Line2'] = np.where(df['Line'].apply(lambda x: x in ['YU','BD','SRT']), 1,0)
 df['Line2'].value_counts()
+df['Line'].isin( ['YU','BD','SRT'])
 
 
 
@@ -167,7 +172,7 @@ data.groupby( ['month', 'item']).agg(
       
       
 # method 1:      
-station = df.groupby(['Station']).agg(
+station = df.groupby(['Station'],as_index=False).agg(
     {
      'Min.Delay':[min,max,sum],
      'column_label' : "count",
@@ -229,10 +234,14 @@ str_list = [
 ]
 
 
+
+str_list.upper()
 # apply fnction to the column
 # [s +1 for s in df['Min.Delay']]
 # apply function to a list
+str_list= [s.upper() for s in str_list]
 a= [s.split(' ') for s in str_list]
+
 
 l =[]
 for i in range(len(a)):
@@ -243,5 +252,16 @@ frequency = collections.Counter(l)
 
 # check result by dictionary
 dict(frequency)
+type(a)
+type(frequency)
+
+frequency['The']
+frequency.get('THE')
+
+# split by multi delimeters
+import re
+a='Beautiful, is; better*than\nugly'
+
+re.split(';|,',a)
 
 
